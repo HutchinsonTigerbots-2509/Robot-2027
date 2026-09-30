@@ -8,6 +8,20 @@
 #include <frc2/command/button/CommandXboxController.h>
 #include "subsystems/CommandSwerveDrivetrain.h"
 #include "Telemetry.h"
+#include <frc/smartdashboard/SendableChooser.h>
+#include <frc2/command/InstantCommand.h>
+#include <frc/smartdashboard/SmartDashboard.h>
+
+//Autonomous includes below this
+#include <pathplanner/lib/auto/AutoBuilder.h>
+#include <pathplanner/lib/config/RobotConfig.h>
+#include <pathplanner/lib/commands/PathPlannerAuto.h>
+#include <pathplanner/lib/auto/NamedCommands.h>
+#include <pathplanner/lib/controllers/PPHolonomicDriveController.h>
+#include <frc/geometry/Pose2d.h>
+#include <frc/kinematics/ChassisSpeeds.h>
+#include <frc/DriverStation.h>
+#include <frc/estimator/SwerveDrivePoseEstimator.h>
 
 class RobotContainer {
 private:
@@ -26,14 +40,36 @@ private:
     Telemetry logger{MaxSpeed};
 
     frc2::CommandXboxController joystick{0};
-
+    
+    double creepMult=1;
+    //Auto stuff goes below this
+    frc::SendableChooser<frc2::Command*> autoChooser;
+    frc::Pose2d startPose=frc::Pose2d{0_m,0_m,0_deg};
+    frc::Rotation2d rotation2d = drivetrain.GetPigeon2().GetRotation2d();
+        // Locations for the swerve drive modules relative to the robot center.
+    frc::Translation2d m_frontLeftLocation{8.5_in, 8.5_in};
+    frc::Translation2d m_frontRightLocation{8.5_in, -8.5_in};
+    frc::Translation2d m_backLeftLocation{-8.5_in, 8.5_in};
+    frc::Translation2d m_backRightLocation{-8.5_in, -8.5_in};
+        // Creating my kinematics object using the module locations.
+    frc::SwerveDriveKinematics<4> kinematics{
+    m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation,m_backRightLocation};
+    swerve::requests::ApplyRobotSpeeds autoRobotSpeedsRequest = swerve::requests::ApplyRobotSpeeds();
+    frc::SwerveDrivePoseEstimator<4>* poseEstimator;
 public:
     subsystems::CommandSwerveDrivetrain drivetrain{TunerConstants::CreateDrivetrain()};
 
     RobotContainer();
-
-    frc2::CommandPtr GetAutonomousCommand();
+    //Auto stuff goes below this
+    frc2::Command* GetAutonomousCommand();
 
 private:
+    //Methods
     void ConfigureBindings();
+
+    //Methods for Auto
+
+    void ApplyStart();
+    void ConfigureAutoBuilder();
+    frc::SendableChooser<frc2::Command*> GetSelection();
 };
