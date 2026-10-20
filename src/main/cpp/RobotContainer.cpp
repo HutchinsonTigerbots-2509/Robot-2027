@@ -57,11 +57,12 @@ void RobotContainer::ApplyStart(){
     }
 }
 void RobotContainer::ConfigureAutoBuilder(){
+    poseEstimator= new frc::SwerveDrivePoseEstimator<4>{kinematics,frc::Rotation2d{},{drivetrain.GetModule(0).GetPosition(false),drivetrain.GetModule(1).GetPosition(false),drivetrain.GetModule(2).GetPosition(false),drivetrain.GetModule(3).GetPosition(false)},frc::Pose2d{},{0,0,0},{0,0,0}};
    pathplanner::RobotConfig config = pathplanner::RobotConfig::fromGUISettings();
     // Configure the AutoBuilder last
     pathplanner::AutoBuilder::configure(
-        [this](){ return poseEstimator->GetEstimatedPosition(); }, // Robot pose supplier   Test #1 Replacing drivetrain.GetState().Pose; with PoseEstimator->GetEstimatedPostion()
-        [this](frc::Pose2d pose){ drivetrain.ResetPose(pose); }, // Method to reset odometry (will be called if your auto has a starting pose)
+        [this](){ return drivetrain.GetState().Pose;}, // Robot pose supplier   Test #1 Replacing drivetrain.GetState().Pose; with PoseEstimator->GetEstimatedPostion()
+        [this](frc::Pose2d pose){ drivetrain.ResetPose(pose); poseEstimator->ResetPose(pose);}, // Method to reset odometry (will be called if your auto has a starting pose)
         [this](){ return drivetrain.GetState().Speeds; }, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         [this](frc::ChassisSpeeds speeds, pathplanner::DriveFeedforwards feedforwards){ drivetrain.SetControl(autoRobotSpeedsRequest.WithSpeeds(frc::ChassisSpeeds::Discretize(speeds.vx,speeds.vy,speeds.omega, 0.020_s))
             .WithWheelForceFeedforwardsX(feedforwards.robotRelativeForcesX)
@@ -86,7 +87,7 @@ void RobotContainer::ConfigureAutoBuilder(){
         },
         &drivetrain // Reference to this subsystem to set requirements
     );
-    poseEstimator= new frc::SwerveDrivePoseEstimator<4>{kinematics,frc::Rotation2d{},{drivetrain.GetModule(0).GetPosition(false),drivetrain.GetModule(1).GetPosition(false),drivetrain.GetModule(2).GetPosition(false),drivetrain.GetModule(3).GetPosition(false)},frc::Pose2d{},{0,0,0},{0,0,0}};
+    frc::SmartDashboard::PutData(&autoChooser);
     poseEstimator->ResetPose(startPose);
 }
 frc2::Command* RobotContainer::GetAutonomousCommand()

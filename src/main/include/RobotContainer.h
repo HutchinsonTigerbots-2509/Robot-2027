@@ -20,7 +20,10 @@
 #include <pathplanner/lib/controllers/PPHolonomicDriveController.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/kinematics/ChassisSpeeds.h>
+#include <frc/kinematics/SwerveDriveKinematics.h>
+#include <frc/geometry/Transform2d.h>
 #include <frc/DriverStation.h>
+#include <frc/geometry/Rotation2d.h>
 #include <frc/estimator/SwerveDrivePoseEstimator.h>
 
 class RobotContainer {
