@@ -10,12 +10,8 @@
 RobotContainer::RobotContainer()
 {
     ConfigureBindings();
-    ConfigureAutoBuilder();
-    GetAutonomousCommand();
-    autoChooser=pathplanner::AutoBuilder::buildAutoChooserFilter([this]
-            (const pathplanner::PathPlannerAuto& autoCommand)
-            {return autoCommand.GetName().starts_with("Comp");});
-    frc::SmartDashboard::PutData("Auto Chooser",&autoChooser);
+    // ConfigureAutoBuilder();
+    // GetAutonomousCommand();
 }
 
 void RobotContainer::ConfigureBindings()
@@ -46,51 +42,59 @@ void RobotContainer::ConfigureBindings()
 
     drivetrain.RegisterTelemetry([this](auto const &state) { logger.Telemeterize(state); });
 }
-//From here down will be auto code
+// frc2::CommandPtr RobotContainer::GetAutonomousCommand()
+// {
+//     // Simple drive forward auton
+//     return frc2::cmd::Sequence(
+//         // Reset our field centric heading to match the robot
+//         // facing away from our alliance station wall (0 deg).
+//         drivetrain.RunOnce([this] { drivetrain.SeedFieldCentric(frc::Rotation2d{0_deg}); }),
+//         // Then slowly drive forward (away from us) for 5 seconds.
+//         drivetrain.ApplyRequest([this]() -> auto&& {
+//             return drive.WithVelocityX(0.5_mps)
+//                 .WithVelocityY(0_mps)
+//                 .WithRotationalRate(0_tps);
+//         })
+//         .WithTimeout(5_s),
+//         // Finally idle for the rest of auton
+//         drivetrain.ApplyRequest([] { return swerve::requests::Idle{}; })
+//     );
+// }
+// //From here down will be auto code
 
-void RobotContainer::ApplyStart(){
-    std::string autoname=autoChooser.GetSelected()->GetName();
-    auto pathGroup=pathplanner::PathPlannerAuto::getPathGroupFromAutoFile(autoname);
-    if(!pathGroup.empty()){
-        pathplanner::AutoBuilder::resetOdom(pathGroup[0]->getStartingHolonomicPose().value());
-        startPose=pathGroup[0]->getStartingHolonomicPose().value();
-    }
-}
-void RobotContainer::ConfigureAutoBuilder(){
-    poseEstimator= new frc::SwerveDrivePoseEstimator<4>{kinematics,frc::Rotation2d{},{drivetrain.GetModule(0).GetPosition(false),drivetrain.GetModule(1).GetPosition(false),drivetrain.GetModule(2).GetPosition(false),drivetrain.GetModule(3).GetPosition(false)},frc::Pose2d{},{0,0,0},{0,0,0}};
-   pathplanner::RobotConfig config = pathplanner::RobotConfig::fromGUISettings();
-    // Configure the AutoBuilder last
-    pathplanner::AutoBuilder::configure(
-        [this](){ return drivetrain.GetState().Pose;}, // Robot pose supplier   Test #1 Replacing drivetrain.GetState().Pose; with PoseEstimator->GetEstimatedPostion()
-        [this](frc::Pose2d pose){ drivetrain.ResetPose(pose); poseEstimator->ResetPose(pose);}, // Method to reset odometry (will be called if your auto has a starting pose)
-        [this](){ return drivetrain.GetState().Speeds; }, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-        [this](frc::ChassisSpeeds speeds, pathplanner::DriveFeedforwards feedforwards){ drivetrain.SetControl(autoRobotSpeedsRequest.WithSpeeds(frc::ChassisSpeeds::Discretize(speeds.vx,speeds.vy,speeds.omega, 0.020_s))
-            .WithWheelForceFeedforwardsX(feedforwards.robotRelativeForcesX)
-            .WithWheelForceFeedforwardsY(feedforwards.robotRelativeForcesY));}, 
+// void RobotContainer::ConfigureAutoBuilder(){
+//     //poseEstimator= new frc::SwerveDrivePoseEstimator<4>{kinematics,frc::Rotation2d{},{drivetrain.GetModule(0).GetPosition(false),drivetrain.GetModule(1).GetPosition(false),drivetrain.GetModule(2).GetPosition(false),drivetrain.GetModule(3).GetPosition(false)},frc::Pose2d{},{0,0,0},{0,0,0}};
+//    pathplanner::RobotConfig config = pathplanner::RobotConfig::fromGUISettings();
+//     // Configure the AutoBuilder last
+//     pathplanner::AutoBuilder::configure(
+//         [this](){ return drivetrain.GetState().Pose;}, // Robot pose supplier   Test #1 Replacing drivetrain.GetState().Pose; with PoseEstimator->GetEstimatedPostion()
+//         [this](frc::Pose2d pose){ drivetrain.ResetPose(pose);}, // Method to reset odometry (will be called if your auto has a starting pose)
+//         [this](){ return drivetrain.GetState().Speeds; }, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+//         [this](frc::ChassisSpeeds speeds, pathplanner::DriveFeedforwards feedforwards){ drivetrain.SetControl(autoRobotSpeedsRequest.WithSpeeds(frc::ChassisSpeeds::Discretize(speeds.vx,speeds.vy,speeds.omega, 0.020_s))
+//             .WithWheelForceFeedforwardsX(feedforwards.robotRelativeForcesX)
+//             .WithWheelForceFeedforwardsY(feedforwards.robotRelativeForcesY));}, 
         
-        // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
-        std::make_shared<pathplanner::PPHolonomicDriveController>( // PPHolonomicController is the built in path following controller for holonomic drive trains
-            pathplanner::PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-            pathplanner::PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
-        ),
-        config, // The robot configuration
-        []() {
-            // Boolean supplier that controls when the path will be mirrored for the red alliance
-            // This will flip the path being followed to the red side of the field.
-            // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+//         // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+//         std::make_shared<pathplanner::PPHolonomicDriveController>( // PPHolonomicController is the built in path following controller for holonomic drive trains
+//             pathplanner::PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+//             pathplanner::PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+//         ),
+//         config, // The robot configuration
+//         []() {
+//             // Boolean supplier that controls when the path will be mirrored for the red alliance
+//             // This will flip the path being followed to the red side of the field.
+//             // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
-            auto alliance = frc::DriverStation::GetAlliance();
-            if (alliance) {
-                return alliance.value() == frc::DriverStation::Alliance::kRed;
-            }
-            return false;
-        },
-        &drivetrain // Reference to this subsystem to set requirements
-    );
-    frc::SmartDashboard::PutData(&autoChooser);
-    poseEstimator->ResetPose(startPose);
-}
-frc2::Command* RobotContainer::GetAutonomousCommand()
-{
-    return autoChooser.GetSelected();
-}
+//             auto alliance = frc::DriverStation::GetAlliance();
+//             if (alliance) {
+//                 return alliance.value() == frc::DriverStation::Alliance::kRed;
+//             }
+//             return false;
+//         },
+//         &drivetrain // Reference to this subsystem to set requirements
+//     );
+// }
+// //frc2::Command* RobotContainer::GetAutonomousCommand()
+// // {
+// //     return autoChooser.GetSelected();
+// // }

@@ -11,6 +11,7 @@
 #include <optional>
 
 #include "RobotContainer.h"
+#include "AutoContainer.h"
 
 class Robot : public frc::TimedRobot {
 public:
@@ -32,7 +33,7 @@ public:
 private:
     std::optional<frc2::Command*> m_autonomousCommand;
 
-    RobotContainer m_container;
+    AutoContainer m_AutoContainer;
 
     /* log and replay timestamp and joystick data */
     ctre::phoenix6::HootAutoReplay m_timeAndJoystickReplay = ctre::phoenix6::HootAutoReplay{}

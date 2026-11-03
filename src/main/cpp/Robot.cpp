@@ -11,6 +11,7 @@ Robot::Robot() {}
 void Robot::RobotPeriodic() {
     m_timeAndJoystickReplay.Update();
     frc2::CommandScheduler::GetInstance().Run();
+    SignalLogger::Stop;
 }
 
 void Robot::DisabledInit() {}
@@ -20,14 +21,17 @@ void Robot::DisabledPeriodic() {}
 void Robot::DisabledExit() {}
 
 void Robot::AutonomousInit() {
-    m_autonomousCommand = m_container.GetAutonomousCommand();
+    SignalLogger::Stop;
+    m_autonomousCommand = m_AutoContainer.GetAutonomousCommand();
 
     if (m_autonomousCommand) {
         frc2::CommandScheduler::GetInstance().Schedule(m_autonomousCommand.value());
     }
 }
 
-void Robot::AutonomousPeriodic() {}
+void Robot::AutonomousPeriodic() {
+    SignalLogger::Stop;
+}
 
 void Robot::AutonomousExit() {}
 
@@ -35,9 +39,12 @@ void Robot::TeleopInit() {
     if (m_autonomousCommand) {
         frc2::CommandScheduler::GetInstance().Cancel(m_autonomousCommand.value());
     }
+    SignalLogger::Stop;
 }
 
-void Robot::TeleopPeriodic() {}
+void Robot::TeleopPeriodic() {
+    SignalLogger::Stop;
+}
 
 void Robot::TeleopExit() {}
 
