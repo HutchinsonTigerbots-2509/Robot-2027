@@ -59,12 +59,12 @@ public:
 
     RobotContainer();
     //Auto stuff goes below this
-    //frc2::CommandPtr GetAutonomousCommand();
+    frc2::CommandPtr GetAutonomousCommand();
+    void ConfigureBindings();
 
 private:
     //Methods
-    void ConfigureBindings();
-
+    
     //Methods for Auto
     //void ConfigureAutoBuilder();
 
