@@ -31,10 +31,10 @@ public:
     void TestExit() override;
 
 private:
-    std::optional<frc2::CommandPtr> m_autonomousCommand;
+    std::optional<frc2::Command*> m_autonomousCommand;
 
-    //AutoContainer m_AutoContainer;
-    RobotContainer m_Container;
+    AutoContainer m_AutoContainer;
+    
 
     /* log and replay timestamp and joystick data */
     ctre::phoenix6::HootAutoReplay m_timeAndJoystickReplay = ctre::phoenix6::HootAutoReplay{}

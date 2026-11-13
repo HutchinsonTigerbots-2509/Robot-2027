@@ -10,8 +10,6 @@
 RobotContainer::RobotContainer()
 {
     ConfigureBindings();
-    // ConfigureAutoBuilder();
-    // GetAutonomousCommand();
 }
 
 void RobotContainer::ConfigureBindings()
@@ -38,28 +36,28 @@ void RobotContainer::ConfigureBindings()
         }).IgnoringDisable(true)
     );
     // reset the field-centric heading on left bumper press
-    joystick.LeftBumper().OnTrue(drivetrain.RunOnce([this] { drivetrain.SeedFieldCentric(); }));
+    //joystick.LeftBumper().OnTrue(drivetrain.RunOnce([this] { drivetrain.SeedFieldCentric(); }));
 
     drivetrain.RegisterTelemetry([this](auto const &state) { logger.Telemeterize(state); });
 }
-frc2::CommandPtr RobotContainer::GetAutonomousCommand()
-{
-    // Simple drive forward auton
-    return frc2::cmd::Sequence(
-        // Reset our field centric heading to match the robot
-        // facing away from our alliance station wall (0 deg).
-        drivetrain.RunOnce([this] { drivetrain.SeedFieldCentric(frc::Rotation2d{0_deg}); }),
-        // Then slowly drive forward (away from us) for 5 seconds.
-        drivetrain.ApplyRequest([this]() -> auto&& {
-            return drive.WithVelocityX(0.5_mps)
-                .WithVelocityY(0_mps)
-                .WithRotationalRate(0_tps);
-        })
-        .WithTimeout(5_s),
-        // Finally idle for the rest of auton
-        drivetrain.ApplyRequest([] { return swerve::requests::Idle{}; })
-    );
-}
+// frc2::CommandPtr RobotContainer::GetAutonomousCommand()
+// {
+//     // Simple drive forward auton
+//     return frc2::cmd::Sequence(
+//         // Reset our field centric heading to match the robot
+//         // facing away from our alliance station wall (0 deg).
+//         drivetrain.RunOnce([this] { drivetrain.SeedFieldCentric(frc::Rotation2d{0_deg}); }),
+//         // Then slowly drive forward (away from us) for 5 seconds.
+//         drivetrain.ApplyRequest([this]() -> auto&& {
+//             return drive.WithVelocityX(0.5_mps)
+//                 .WithVelocityY(0_mps)
+//                 .WithRotationalRate(0_tps);
+//         })
+//         .WithTimeout(5_s),
+//         // Finally idle for the rest of auton
+//         drivetrain.ApplyRequest([] { return swerve::requests::Idle{}; })
+//     );
+// }
 // //From here down will be auto code
 
 // void RobotContainer::ConfigureAutoBuilder(){

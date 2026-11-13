@@ -22,7 +22,7 @@ void Robot::DisabledExit() {}
 
 void Robot::AutonomousInit() {
     SignalLogger::Stop;
-    m_autonomousCommand = m_Container.GetAutonomousCommand();
+    m_autonomousCommand = m_AutoContainer.GetAutonomousCommand();
 
     if (m_autonomousCommand) {
         frc2::CommandScheduler::GetInstance().Schedule(m_autonomousCommand.value());
@@ -30,21 +30,24 @@ void Robot::AutonomousInit() {
 }
 
 void Robot::AutonomousPeriodic() {
-    
+    SignalLogger::Stop();
 }
 
-void Robot::AutonomousExit() {}
+void Robot::AutonomousExit() {
+    SignalLogger::Stop();
+}
 
 void Robot::TeleopInit() {
+    SignalLogger::Stop();
     if (m_autonomousCommand) {
         frc2::CommandScheduler::GetInstance().Cancel(m_autonomousCommand.value());
     }
-    m_Container.ConfigureBindings();
+    RobotContainer m_Container;
     
 }
 
 void Robot::TeleopPeriodic() {
-    
+    SignalLogger::Stop();
 }
 
 void Robot::TeleopExit() {}
